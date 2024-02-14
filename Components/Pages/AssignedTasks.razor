@@ -1,0 +1,73 @@
+﻿@page "/AssignedTasks"
+@rendermode InteractiveServer
+
+<PageTitle>AssignedTasks</PageTitle>
+
+<h1>Assigned Tasks</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Add</button>
+<button class="btn btn-primary" @onclick="SubCount">Sub</button>
+
+<EditForm Model="@enteredValue" OnValidSubmit="countup">
+    <label for="Number">Number: </label>
+    <InputNumber id="Number" @bind-Value="@enteredValue.entered_num"/>
+</EditForm>
+
+<SpinningButtonTemplate changeColor="@colorTo" onButtonClick="loopthrough" state="loopingNumbers"/>
+
+<p role="status">@startingNum</p>
+
+<button class="btn btn-primary" @onclick="callJS">CALL JS</button>
+
+<div class="form-floating">
+    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" @bind="copyToShowAlert"></textarea>
+    <label for="floatingTextarea">Comments</label>
+</div>
+
+@code {
+    GetNum enteredValue = new();
+
+    private int currentCount = 0;
+    private int countingUp = 0;
+    private int startingNum = 0;
+    private bool loopingNumbers = false;
+    private string copyToShowAlert = string.Empty;
+    private string colorTo = "btn btn-primary";
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+    private void SubCount()
+    {
+        currentCount--;
+    }
+
+    private void countup()
+    {
+        countingUp = enteredValue.entered_num;
+    }
+
+    private async Task loopthrough()
+    {
+        colorTo = "btn btn-danger";
+        loopingNumbers = true;
+        startingNum = 0;
+        for (int x = countingUp; x > 0; x--)
+        {
+            startingNum++;
+            await Task.Delay(1000);
+            StateHasChanged();
+        }
+        loopingNumbers = false;
+        colorTo = "btn btn-success";
+        await Task.Delay(2000);
+    }
+
+    private async Task callJS()
+    {
+        await JSRunTime.InvokeVoidAsync("showAlert",copyToShowAlert);
+    }
+}
